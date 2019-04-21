@@ -248,4 +248,4 @@ Following this process ensures that both the app and the trainer have the same d
 
 *Some visual information on the current image processing steps taken by the app are shown below*
 
-![Alt text](/Procxessing.png?raw=true "Preview")
+![Alt text](/Processing.png?raw=true "Preview")

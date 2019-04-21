@@ -6,11 +6,13 @@ This is a rough guide for how to use the below suite of applications to create a
 * [Offline Trainer](https://github.com/Mquinn960/offline-trainer)
 * [Sign Language (App)](https://github.com/Mquinn960/sign-language)
 
+Thank you for taking the time to read this help guide, if you have any additional questions regarding this project please get in touch. Have fun!
+
 ![Alt text](/Preview.png?raw=true "Preview")
 
 ## 1. Creating your *Training* and *Testing* datasets using [Dataset Creator](https://github.com/Mquinn960/dataset-creator)
 
-This stage involves creating a usable dataset consisting of images of Sign Language gestures which will be used to train the SVM kernel for recognition
+This phase involves creating a usable dataset consisting of images of Sign Language gestures which will be used to train the SVM kernel for recognition
 
 1. Use Git to clone the [Dataset Creator](https://github.com/Mquinn960/dataset-creator) repository
 2. Attach a webcam device to your computer and make sure it's producing output
@@ -48,12 +50,12 @@ Your resultant image folder should look something like this. For use with the [O
 
 ## 2. Training the SVM recognition kernel using the [Offline Trainer](https://github.com/Mquinn960/offline-trainer)
 
-This stage involves ingesting your training and testing data to train an SVM kernel and produce an output file which can be used with the [Sign Language (App)](https://github.com/Mquinn960/sign-language) in order to make predictions in real time. Performance and accuracy data on any available test images will also be produced during this stage.
+This phase involves ingesting your training and testing data to train an SVM kernel and produce an output file which can be used with the [Sign Language (App)](https://github.com/Mquinn960/sign-language) in order to make predictions in real time. Performance and accuracy data on any available test images will also be produced during this phase.
 
 1. Use Git to clone the [Offline Trainer](https://github.com/Mquinn960/offline-trainer) repository.
 2. Follow the ```README``` steps to ensure you have configured *IntelliJ IDEA* correctly and that you have resolved the project dependencies
 3. Edit the ```Main``` class in the ```src``` folder to configure some testing parameters:
-    * ```DATASETS_FOLDER``` - The folder created during stage 1 above containing your training datasets. When using multiple datasets, an **example** folder structure is shown below:
+    * ```DATASETS_FOLDER``` - The folder created during phase 1 above containing your training datasets. When using multiple datasets, an **example** folder structure is shown below:
 
 ```javascript
 /hand-datasets/
@@ -76,7 +78,7 @@ This stage involves ingesting your training and testing data to train an SVM ker
                         |---A_81.jpg
                         |---...
 ```
-*note: the dataset folder names are not important, but the **train** and **test** folder names are, and the **image filename**s are, see stage 1 above for more info*
+*note: the dataset folder names are not important, but the **train** and **test** folder names are, and the **image filename**s are, see phase 1 above for more info*
 
 3. (cont.)
     * ```RESULTS_FOLDER``` - This is the folder to which your testing result files will be saved
@@ -97,7 +99,153 @@ This stage involves ingesting your training and testing data to train an SVM ker
         * If you want to run the project from the command line you can elect to ```Build->Build Artifact``` which will produce an executable ```.jar``` in the ```offline-trainer\out\artifacts\``` folder
         * Run this ```.jar``` file from the command line using ```java -Djava.library.path=F:\Repos\offline-trainer\new\ -jar offline-trainer.jar``` but substitute the file path to your cloned repo in the ```java.library.path``` string
 
-6. The testing results will be placed in the ```RESULTS_FOLDER``` specified in step 3 with file names corresponding to the parameters used:
+6. The testing results will be placed in the ```RESULTS_FOLDER``` specified in step 3 with file names corresponding to the parameters used in step 3.
 
+7. The actual trained SVM models for use with the [Sign Language App](https://github.com/Mquinn960/sign-language) will be output to the project root in the form  ```trained_1.xml```, where ```1``` indicates the sequential run #. This file can then be loaded into the app as shown in phase 3.
 
-7. The actual trained SVM models for use with the [Sign Language App](https://github.com/Mquinn960/sign-language) will be output to the project root in the form  ```trained_1.xml```, where ```1``` indicates the sequential run #. This file can then be loaded into the app as shown in stage 3.
+## Interpreting Test Result Files ##
+
+The test result files created by the [Offline Trainer](https://github.com/Mquinn960/offline-trainer) have some usable performance and accuracy statistics in them, here is the high level overview:
+
+### Header ###
+
+```
+RUN 9
+Features: none
+SVM Kernel: linear
+Dimensionality Reduction: pca
+Dataset: mon95
+```
+
+This shows the parameters configured in step 3 above and what sequential # of run is this
+
+### Training Results ###
+```
+Train Sample 1: A1_1_7.jpg
+Train Sample 2: A2_1_7.jpg
+Train Sample 3: A3_1_7.jpg
+...
+```
+
+This is a list of every training sample you fed in to this run, this can be useful for finding examples of your *false positives* for example. *Note: these are numbered according to the order they were processed*.
+
+```
+Total Image Processing Time: 00:00:15.680
+Average Image Processing Time: 00:00:00.11
+
+Actual SVM Training Time: 00:00:12.234
+Actual PCA Time: 00:01:09.250
+```
+
+This shows the time taken to perform the **training** phase alone in ```HH:mm:ss.mmm```
+
+### Testing Results ###
+
+```
+Test Sample 1: A0_1.jpg
+Test Sample 2: A0_1_2.jpg
+Test Sample 3: A0_1_3.jpg
+...
+```
+
+Again this shows the testing images as they were processed *Note: these are numbered according to the order they were processed*.
+
+```
+Total Image Processing Time: 00:00:05.141
+Average Image Processing Time: 00:00:00.15
+
+Actual Testing Time: 00:00:00.15
+```
+This shows the time taken to perform the **testing** phase alone in ```HH:mm:ss.mmm```
+
+### Sample Category Matrix ###
+
+```
+CLASS: A
+TP: 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+TN: 15 16 17 18 19 20 21 22 23 24 25
+FP: 74
+FN: 270 277
+```
+For each class, this output lists each **T**rue **P**ositive, **T**rue **N**egative, **F**alse **P**ositive and **F**alse **N**egative - the numbers correspond to the sample # shown above in "Testing Results". For example ```TP: 1``` would correspond to ```Test Sample 1: A0_1.jpg```
+
+This allows you to create something like the following:
+
+![Alt text](/Examples.png?raw=true "Preview")
+
+### Simple Confusion Matrix ###
+
+```
+14 0 0 0 0 0 0 0
+0 13 0 0 0 0 0 0
+0 0 13 0 0 0 0 0
+0 0 0 14 0 0 0 0
+0 0 0 0 13 0 0 0
+0 0 0 0 0 13 0 0
+0 0 0 0 0 0 14 0
+...
+```
+This is a simple confusion matrix of each class against each other class when testing. This matrix can be thought of as the following:
+
+```
+                        Actual Class
+
+                A  B  C  D  E  F  G  H  I
+                A  14 0  0  0  0  0  0  0
+ Predicted      B  0  13 0  0  0  0  0  0
+ Class          C  0  0  13 0  0  0  0  0
+                D  0  0  0  14 0  0  0  0
+                E  0  0  0  0  13 0  0  0
+                F  0  0  0  0  0  13 0  0
+                G  0  0  0  0  0  0  14 0
+...
+```
+
+This allows you to create something like the following:
+
+![Alt text](/Matrix.png?raw=true "Preview")
+
+## 3. Using the trained model to power the [Sign Language App](https://github.com/Mquinn960/sign-language)
+
+This phase involves importing your trained model (```trained_1.xml```) created using the [Offline Trainer](https://github.com/Mquinn960/offline-trainer) and then using this on an Android app.
+
+1. Use Git to clone the [Sign Language App](https://github.com/Mquinn960/sign-language)
+
+2. Follow the ```README``` steps to ensure you have configured *Android Studio* correctly and that you have resolved the project dependencies
+
+3. Attach an Android smartphone to your computer, enabling ADB to allow debugging
+
+4. Import your ```trained_1.xml``` into the ```sign-language\app\src\main\res\raw``` folder
+
+5. **Important**: Make sure the [Sign Language App](https://github.com/Mquinn960/sign-language) is configured to use the same parameters as you used in your testing run:
+    * For example, if you used:
+
+        ```detection method: CANNY_EDGES ```
+
+        ```kernel: RBF```
+        
+        ```dimensionality reduction: none```
+
+        In your training run, then these need to match when using the [Sign Language App](https://github.com/Mquinn960/sign-language) otherwise you're going to pass in invalid data to the SVM.
+
+      * ```Detection method``` can be set in the ```MainActivity``` class in the ```onCameraViewStarted``` method
+      * ```SVM kernel``` type can be set in the ```FrameClassifier``` class in the constructor
+      * ```Dimensionality Reduction``` can currently be used in the ```FrameClassifier``` **although there is an open issue to create an export process for PCA eigenvectors to support this, for now stick to ```none```**
+
+6. Run the application, which will load the trained SVM file and allow for the live translation of sign language gestures **using your trained model!**
+
+*Some information on the overall processing steps taken by the app are shown below*
+
+![Alt text](/Process.png?raw=true "Preview")
+
+## 4. (Optional) Changing the imaging kernel of the [Sign Language App](https://github.com/Mquinn960/sign-language) and importing this into the [Offline Trainer](https://github.com/Mquinn960/offline-trainer) in order to perform your own experiments
+
+It is encouraged to experiment with your own image pre-processing techniques when training your SVM model. In order to train and refine your App's imaging kernel and thus produce better results, you can alter the [Sign Language App](https://github.com/Mquinn960/sign-language)'s imaging kernel and import this into the [Offline Trainer](https://github.com/Mquinn960/offline-trainer). 
+
+To do this, see the ```README``` of the [Sign Language App](https://github.com/Mquinn960/sign-language) regarding the ```.jar``` export process and the ```README``` of the [Offline Trainer](https://github.com/Mquinn960/offline-trainer) regarding the library import process.
+
+Following this process ensures that both the app and the trainer have the same data processing methods and will result in a cohesive workflow when perfecting the recognition workflow.
+
+*Some visual information on the current image processing steps taken by the app are shown below*
+
+![Alt text](/Procxessing.png?raw=true "Preview")

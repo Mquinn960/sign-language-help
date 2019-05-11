@@ -190,7 +190,7 @@ This is a simple confusion matrix of each class against each other class when te
 ```
                         Actual Class
 
-                A  B  C  D  E  F  G  H  I
+                   A  B  C  D  E  F  G  H
                 A  14 0  0  0  0  0  0  0
  Predicted      B  0  13 0  0  0  0  0  0
  Class          C  0  0  13 0  0  0  0  0
